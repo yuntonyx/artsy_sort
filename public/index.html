@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="stylesheet.css" />
+        <script src="app.js"></script>
+    </head>
+    <body>
+        <div id="wrapper">
+            <div id="menu">
+                <form id="form-app">
+                    <div class="input-group">
+                        <input id="input-file" type="file" accept="image/*">
+                        <label class="button" for="input-file">Select an image</label>
+                    </div>
+                    <div class="input-group">
+                        <label for="algorithm">Algorithm: </label>
+                        <select name="algorithm" id="algorithm">
+                            <option value="insertion_sort">Insertion Sort</option>
+                            <option value="selection_sort">Selection Sort</option>
+                            <option value="bubble_sort">Bubble Sort</option>
+                            <option value="comb_sort">Comb Sort</option>
+                            <option value="odd_even_sort">Odd Even Sort</option>
+                            <option value="cocktail_sort">Cocktail Sort</option>
+                            <option value="shell_sort">Shell Sort</option>
+                            <option value="heap_sort">Heap Sort</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="delay">Delay: </label>
+                        <input type="range" min="0" max="200" value="50" name="delay" id="delay">
+                    </div>
+                    <div class="button-group">
+                        <input class="button" type="submit" value="Play"/>
+                        <input class="button" id='btn-reset' type="reset" value="Reset"/>
+                    </div>
+                </form>
+                <span id="status"></span>
+            </div>
+            <div id="canvas">
+                <canvas id="board"></canvas>
+            </div>
+        </div>
+    </body>
+</html>

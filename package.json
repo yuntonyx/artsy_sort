@@ -1,0 +1,11 @@
+{
+  "name": "Sort_Visualization",
+  "version": "0.0.1",
+  "description": "Sorting Images",
+  "author": "Tony",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "dependencies": {
+  }
+}

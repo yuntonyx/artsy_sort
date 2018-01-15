@@ -5,16 +5,41 @@
         <script src="app.js"></script>
     </head>
     <body>
+        <div class="modal-overlay" id="modal-pic-select">
+            <div class="modal-wrapper">
+                <div class="modal-header">
+                    <h1 class="modal-title">Select a picture</h1>
+                    <span class="modal-close" id="modal-close-pic" data-close-id="modal-pic-select">✖</span>
+                </div>
+                <div class="modal-content">
+                    <div class="image-preset">
+                        <img src="/presets/rainbow.jpg">
+                    </div>
+                    <div class="image-preset">
+                        <img src="/presets/mountain.jpg">
+                    </div>
+                    <div class="image-preset">
+                        <img src="/presets/doge.jpg">
+                    </div>
+                    <div class="image-preset">
+                        <img src="/presets/kitty.jpg">
+                    </div>
+                    <div class="image-preset custom-upload">
+                        <input id="input-file" name="input_file" type="file" accept="image/*" name="image">
+                        <label class="plus" for="input-file">+</label>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div id="wrapper">
             <div id="menu">
                 <form id="form-app">
                     <div class="input-group">
-                        <input id="input-file" type="file" accept="image/*">
-                        <label class="button" for="input-file">Select an image</label>
+                        <input class="button width-100 btn-modal" id="btn-select-image" data-open-id="modal-pic-select" type='button' value="Select an Image"/>
                     </div>
                     <div class="input-group">
                         <label for="algorithm">Algorithm: </label>
-                        <select name="algorithm" id="algorithm">
+                        <select class="width-100" name="algorithm" id="algorithm">
                             <option value="insertion_sort">Insertion Sort</option>
                             <option value="selection_sort">Selection Sort</option>
                             <option value="bubble_sort">Bubble Sort</option>
@@ -27,11 +52,11 @@
                     </div>
                     <div class="input-group">
                         <label for="delay">Delay: </label>
-                        <input type="range" min="0" max="200" value="50" name="delay" id="delay">
+                        <input class="width-100" type="range" min="0" max="200" value="50" name="delay" id="delay">
                     </div>
                     <div class="button-group">
-                        <input class="button" type="submit" value="Play"/>
-                        <input class="button" id='btn-reset' type="reset" value="Reset"/>
+                        <input class="button width-50" id='btn-play' type="submit" value="Play"/>
+                        <input class="button width-50" id='btn-reset' type="reset" value="Reset"/>
                     </div>
                 </form>
                 <span id="status"></span>

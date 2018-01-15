@@ -5,40 +5,79 @@ function roll(min, max) {
 }
 
 var app;
+var imageURL;
 
 function loadApp() {
     var fileInput = document.getElementById('input-file');
-    if (fileInput.files.length == 0) {
-        alert('Please choose an image');
-        return;
-    }
-    var reader = new FileReader();
-
-    reader.addEventListener("load", function () {
+    if (fileInput.files.length != 0) {
+        var reader = new FileReader();
+        reader.addEventListener("load", function () {
+            if (app) {
+                app.terminate();
+            }
+            var canvas = document.getElementById('board');
+            var imgData = reader.result;
+            var algorithm = document.getElementById('form-app').algorithm.value;
+            var delay = parseInt(document.getElementById('form-app').delay.value);
+            app = new SortVisualization(canvas, imgData, algorithm, delay);
+        });
+        reader.readAsDataURL(fileInput.files[0]);
+    }else if(imageURL){
         if (app) {
             app.terminate();
         }
         var canvas = document.getElementById('board');
-        var imgData = reader.result;
+        var imgData = imageURL;
         var algorithm = document.getElementById('form-app').algorithm.value;
         var delay = parseInt(document.getElementById('form-app').delay.value);
         app = new SortVisualization(canvas, imgData, algorithm, delay);
-    });
-
-    reader.readAsDataURL(fileInput.files[0]);
+    }else{
+        alert("Please select an image");
+    }   
 }
 
 function onLoad() {
+    var modalButtons = document.querySelectorAll('.btn-modal');
+    for(var i = 0; i < modalButtons.length; i++){
+        var modalButton = modalButtons[i];
+        modalButton.addEventListener('click', function(event){
+            document.getElementById(this.getAttribute('data-open-id')).style.display = 'flex';
+        });
+    }
+    var modalCloseButtons = document.querySelectorAll('.modal-close');
+    for(var i = 0; i < modalCloseButtons.length; i++){
+        var modalButton = modalCloseButtons[i];
+        modalButton.addEventListener('click', function(event){
+            document.getElementById(this.getAttribute('data-close-id')).style.display = 'none';
+        });
+    }
+    var imagePresets = document.querySelectorAll('.image-preset');
+    for(var i = 0; i < imagePresets.length; i++){
+        var preset = imagePresets[i];
+        preset.addEventListener('click', function(event){
+            document.getElementById('input-file').value = "";
+            imageURL = this.querySelector('img').src;
+            document.getElementById('modal-close-pic').click();
+            var imgName = imageURL;
+            if(imgName.indexOf('/') != -1){
+                var data = imgName.split('/');
+                imgName = data[data.length - 1];
+            }
+            setImageSelectorBtnText("Selected: " + imgName);
+        });
+    }
     var formApp = document.getElementById('form-app');
     formApp.addEventListener('submit', function (event) {
         event.preventDefault();
         loadApp();
     });
     formApp.addEventListener('reset', function (event) {
-        if (!app) {
-            return;
+        if (app) {
+            app.reset();
         }
-        app.reset();
+        document.getElementById('input-file').value = "";
+        imageURL = undefined;
+        setImageSelectorBtnText("Select an Image");
     });
     formApp.delay.addEventListener('change', function (event) {
         if (!app) {
@@ -54,6 +93,24 @@ function onLoad() {
     });
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
+
+    document.getElementById('input-file').addEventListener('change', function(event){
+        imageURL = undefined;
+        document.getElementById('modal-close-pic').click();
+        var imgName = this.value;
+        if(imgName.indexOf('/') != -1){
+            var data = imgName.split('/');
+            imgName = data[data.length - 1];
+        }else if(imgName.indexOf('\\') != -1){
+            var data = imgName.split('\\');
+            imgName = data[data.length - 1];
+        }
+        setImageSelectorBtnText("Selected: " + imgName);
+    });
+}
+
+function setImageSelectorBtnText(text){
+    document.getElementById('btn-select-image').value = text;
 }
 
 function resizeCanvas() {
@@ -111,16 +168,16 @@ SortVisualization.prototype.loadImage = function (imgData) {
 };
 
 SortVisualization.prototype.prepare = function () {
-    if (this.img.width > 1000 || this.img.height > 1000) {
-        if (!confirm('Warning: Sorting large images will cause significant lag. Recommended image size is around 500x500. Are you sure you want to continue?')) {
-            document.getElementById('btn-reset').click();
-            return;
-        }
+    if(Math.max(this.img.width, this.img.height) > 800){
+        alert('Image has been downscaled to boost performance');
+        var scale = 800 / Math.max(this.img.width, this.img.height);
+        this.img.width *= scale;
+        this.img.height *= scale;
     }
     this.canvas.width = this.img.width;
     this.canvas.height = this.img.height;
     resizeCanvas();
-    this.ctx.drawImage(this.img, 0, 0);
+    this.ctx.drawImage(this.img, 0, 0, this.img.width, this.img.height);
     this.imgData = this.ctx.getImageData(0, 0, this.img.width, this.img.height);
     this.imgDataArr = this.imgData.data;
 

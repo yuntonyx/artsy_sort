@@ -168,9 +168,8 @@ SortVisualization.prototype.loadImage = function (imgData) {
 };
 
 SortVisualization.prototype.prepare = function () {
-    if(Math.max(this.img.width, this.img.height) > 800){
-        alert('Image has been downscaled to boost performance');
-        var scale = 800 / Math.max(this.img.width, this.img.height);
+    if(Math.max(this.img.width, this.img.height) > 300){
+        var scale = 300 / Math.max(this.img.width, this.img.height);
         this.img.width *= scale;
         this.img.height *= scale;
     }
@@ -237,6 +236,25 @@ SortVisualization.prototype.insertion_sort = function () {
         self.setTimeout(step, self.delay);
     }
     step();
+    /*var data = [];
+    var ptr = 0;
+    var worker = new Worker('worker.js');
+    worker.postMessage({imgArr: this.imgDataArr, arr: this.arr, algorithm: 'insertion_sort'});
+    worker.addEventListener('message', function(event){
+        for(var i = 0; i < event.data.length; i++){
+            data.push(event.data[i]);
+        }
+    });
+    var self = this;
+    function step() {
+        for(var i = 0; i < self.img.height && data.length > 0; i++){
+            var event = data.shift();
+            self.swap(event[0], event[1], event[2]);
+        }
+        console.log(data.length);
+        self.setTimeout(step, self.delay);
+    }
+    step();*/
 };
 
 SortVisualization.prototype.bubble_sort = function () {
@@ -390,6 +408,140 @@ SortVisualization.prototype.selection_sort = function () {
             }
         }
         i++;
+        self.setTimeout(step, self.delay);
+    }
+    step();
+};
+
+SortVisualization.prototype.merge_sort = function () {
+    var self = this;
+    var currSize = 1;
+    var leftStart = 0;
+    var auxArr = [];
+    var merging = false;
+
+    var mergePtrs = [];
+    var leftPtrs = [];
+    var rightPtrs = [];
+    var leftLen = 0;
+    function merge(){
+        if((leftPtrs[0] >= leftLen || leftPtrs[0] >= auxArr[0].length) && rightPtrs[0] >= auxArr[0].length){
+            merging = false;
+            return;
+        }
+        for(var k = 0; k < self.img.height; k++){
+            if(leftPtrs[k] >= leftLen){
+                self.arr[k][mergePtrs[k]] = auxArr[k][rightPtrs[k]].val;
+                setColor(k, mergePtrs[k], auxArr[k][rightPtrs[k]]);
+                rightPtrs[k]++;
+                mergePtrs[k]++;
+            }else if(rightPtrs[k] >= auxArr[k].length){
+                self.arr[k][mergePtrs[k]] = auxArr[k][leftPtrs[k]].val;
+                setColor(k, mergePtrs[k], auxArr[k][leftPtrs[k]]);
+                leftPtrs[k]++;
+                mergePtrs[k]++;
+            }else if(auxArr[k][leftPtrs[k]].val < auxArr[k][rightPtrs[k]].val){
+                self.arr[k][mergePtrs[k]] = auxArr[k][leftPtrs[k]].val;
+                setColor(k, mergePtrs[k], auxArr[k][leftPtrs[k]]);
+                leftPtrs[k]++;
+                mergePtrs[k]++;
+            }else{
+                self.arr[k][mergePtrs[k]] = auxArr[k][rightPtrs[k]].val;
+                setColor(k, mergePtrs[k], auxArr[k][rightPtrs[k]]);
+                rightPtrs[k]++;
+                mergePtrs[k]++;
+            }
+        }
+    }
+    function setColor(k, index, color){
+        self.imgDataArr[(k * self.img.width + index) * 4] = color.r;
+        self.imgDataArr[(k * self.img.width + index) * 4 + 1] = color.g;
+        self.imgDataArr[(k * self.img.width + index) * 4 + 2] = color.b;
+        self.imgDataArr[(k * self.img.width + index) * 4 + 3] = color.a;
+    }
+    function step() {
+        if(currSize >= self.img.width){
+            self.terminate();
+            return;
+        }
+        if(merging){
+            merge();
+        }else{
+            if(leftStart >= self.img.width - 1){
+                leftStart = 0;
+                currSize *= 2;
+            }
+            mergePtrs = [];
+            auxArr = [];
+            leftLen = currSize;
+            for(var k = 0; k < self.img.height; k++){
+                auxArr.push([]);
+                mergePtrs.push(leftStart);
+                for(var i = 0; i < currSize * 2 && mergePtrs[k] + i < self.img.width; i++){
+                    auxArr[k].push({
+                        val: self.arr[k][mergePtrs[k] + i],
+                        r: self.imgDataArr[(k * self.img.width + mergePtrs[k] + i) * 4],
+                        g: self.imgDataArr[(k * self.img.width + mergePtrs[k] + i) * 4 + 1],
+                        b: self.imgDataArr[(k * self.img.width + mergePtrs[k] + i) * 4 + 2],
+                        a: self.imgDataArr[(k * self.img.width + mergePtrs[k] + i) * 4 + 3]
+                    });
+                }
+                leftPtrs[k] = 0;
+                rightPtrs[k] = currSize;
+            }
+            leftStart += 2 * currSize;
+            merging = true;
+        }
+        self.setTimeout(step, self.delay);
+    }
+    step();
+};
+
+SortVisualization.prototype.quick_sort = function () {
+    var self = this;
+    var stacks = [];
+    var tops = [];
+    for(var k = 0; k < self.img.height; k++){
+        tops.push(-1);
+        stacks.push([]);
+        stacks[k][++tops[k]] = 0;
+        stacks[k][++tops[k]] = self.arr[0].length - 1;
+    }
+    function step() {
+        var shouldTerminate = true;
+        for(var k = 0; k < self.img.height; k++){
+            if(tops[k] >= 0){
+                shouldTerminate = false;
+            }
+        }
+        if(shouldTerminate){
+            self.terminate();
+            return;
+        }else{
+            for(var k = 0; k < self.img.height; k++){
+                var high = stacks[k][tops[k]--];
+                var low = stacks[k][tops[k]--];
+                
+                var x = self.arr[k][high];
+                var i = low - 1;
+                for(var j = low; j <= high - 1; j++){
+                    if(self.arr[k][j] <= x){
+                        i++;
+                        self.swap(k, i, j);
+                    }
+                }
+                self.swap(k, i + 1, high);
+                var p = i + 1;
+                if (p + 1 < high){
+                    stacks[k][++tops[k]] = p + 1;
+                    stacks[k][++tops[k]] = high;
+                }
+                if (p - 1 > low){
+                    stacks[k][++tops[k]] = low;
+                    stacks[k][++tops[k]] = p - 1;
+                }
+            }
+        }
         self.setTimeout(step, self.delay);
     }
     step();

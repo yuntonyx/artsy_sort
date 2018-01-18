@@ -1,8 +1,19 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <title>Artsy Sort - Sorting visualized through images</title>
         <link rel="stylesheet" type="text/css" href="stylesheet.css" />
         <script src="app.js"></script>
+        <script async defer src="https://buttons.github.io/buttons.js"></script>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-107086970-1"></script>
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'UA-107086970-1');
+        </script>
     </head>
     <body>
         <div class="modal-overlay" id="modal-pic-select">
@@ -14,6 +25,9 @@
                 <div class="modal-content">
                     <div class="image-preset">
                         <img src="/presets/rainbow.jpg">
+                    </div>
+                    <div class="image-preset">
+                        <img src="/presets/grayscale.jpg">
                     </div>
                     <div class="image-preset">
                         <img src="/presets/mountain.jpg">
@@ -61,11 +75,20 @@
                         <input class="button width-50" id='btn-reset' type="reset" value="Reset"/>
                     </div>
                 </form>
-                <span id="status"></span>
+                <div class="input-group">
+                    <a class="github-button" href="https://github.com/yuntonyx/image_sort" data-size="large" data-show-count="true" aria-label="Star yuntonyx/image_sort on GitHub">Star</a>
+                    <br><br>
+                    <span>The speed of each algorithm are not relative due to animation delay. Large images are automatically downscaled for performance</span>
+                    <br>
+                    <span>------</span>
+                    <br>
+                    <span id="status"></span>
+                </div>
             </div>
             <div id="canvas">
                 <canvas id="board"></canvas>
             </div>
         </div>
+        
     </body>
 </html>

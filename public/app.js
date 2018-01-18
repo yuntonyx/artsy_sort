@@ -221,40 +221,35 @@ SortVisualization.prototype.update = function (delta) {
 
 SortVisualization.prototype.insertion_sort = function () {
     var i = 0;
+    var js = [];
+    for(var j = 0; j < this.img.height; j++){
+        js.push(i - 1);
+    }
     var self = this;
     function step() {
-        if (i >= self.img.width) {
-            self.terminate();
-            return;
-        }
-        for (var k = 0; k < self.img.height; k++) {
-            for (var j = i - 1; j >= 0 && (self.arr[k][j] > self.arr[k][j + 1]); j--) {
-                self.swap(k, j + 1, j);
+        for(var l = 0; l < 20; l++){
+            if (i >= self.img.width) {
+                self.terminate();
+                return;
+            }
+            var done = true;
+            for (var k = 0; k < self.img.height; k++) {
+                if(j >= 0 && (self.arr[k][js[k]] > self.arr[k][js[k] + 1])){
+                    self.swap(k, js[k], js[k] + 1);
+                    js[k]--;
+                    done = false;
+                }
+            }
+            if(done){
+                i++;
+                for (var k = 0; k < self.img.height; k++) {
+                    js[k] = i - 1;
+                }
             }
         }
-        i++;
         self.setTimeout(step, self.delay);
     }
     step();
-    /*var data = [];
-    var ptr = 0;
-    var worker = new Worker('worker.js');
-    worker.postMessage({imgArr: this.imgDataArr, arr: this.arr, algorithm: 'insertion_sort'});
-    worker.addEventListener('message', function(event){
-        for(var i = 0; i < event.data.length; i++){
-            data.push(event.data[i]);
-        }
-    });
-    var self = this;
-    function step() {
-        for(var i = 0; i < self.img.height && data.length > 0; i++){
-            var event = data.shift();
-            self.swap(event[0], event[1], event[2]);
-        }
-        console.log(data.length);
-        self.setTimeout(step, self.delay);
-    }
-    step();*/
 };
 
 SortVisualization.prototype.bubble_sort = function () {
@@ -290,25 +285,32 @@ SortVisualization.prototype.comb_sort = function () {
     var shrinkFactor = 1.3;
     var self = this;
     var sorted = false;
+    var j = 0;
+    var firstTime = true;
     function step() {
-        if (sorted) {
-            self.terminate();
-            return;
-        }
-        gap = Math.floor(gap / shrinkFactor);
-        if (gap > 1) {
-            sorted = false;
-        } else {
-            gap = 1;
-            sorted = true;
-        }
-        for (var k = 0; k < self.img.height; k++) {
-            for (var j = 0; j + gap < self.img.width; j++) {
+        for(var l = 0; l < 3; l++){
+            if(firstTime || j + gap == self.img.width){
+                if (sorted) {
+                    self.terminate();
+                    return;
+                }
+                firstTime = false;
+                j = 0;
+                gap = Math.floor(gap / shrinkFactor);
+                if (gap > 1) {
+                    sorted = false;
+                } else {
+                    gap = 1;
+                    sorted = true;
+                }
+            }
+            for (var k = 0; k < self.img.height; k++) {
                 if (self.arr[k][j] > self.arr[k][j + gap]) {
                     self.swap(k, j, j + gap);
                     sorted = false;
                 }
             }
+            j++;
         }
         self.setTimeout(step, self.delay);
     }
@@ -460,37 +462,39 @@ SortVisualization.prototype.merge_sort = function () {
         self.imgDataArr[(k * self.img.width + index) * 4 + 3] = color.a;
     }
     function step() {
-        if(currSize >= self.img.width){
-            self.terminate();
-            return;
-        }
-        if(merging){
-            merge();
-        }else{
-            if(leftStart >= self.img.width - 1){
-                leftStart = 0;
-                currSize *= 2;
+        for(var l = 0; l < 4; l++){
+            if(currSize >= self.img.width){
+                self.terminate();
+                return;
             }
-            mergePtrs = [];
-            auxArr = [];
-            leftLen = currSize;
-            for(var k = 0; k < self.img.height; k++){
-                auxArr.push([]);
-                mergePtrs.push(leftStart);
-                for(var i = 0; i < currSize * 2 && mergePtrs[k] + i < self.img.width; i++){
-                    auxArr[k].push({
-                        val: self.arr[k][mergePtrs[k] + i],
-                        r: self.imgDataArr[(k * self.img.width + mergePtrs[k] + i) * 4],
-                        g: self.imgDataArr[(k * self.img.width + mergePtrs[k] + i) * 4 + 1],
-                        b: self.imgDataArr[(k * self.img.width + mergePtrs[k] + i) * 4 + 2],
-                        a: self.imgDataArr[(k * self.img.width + mergePtrs[k] + i) * 4 + 3]
-                    });
+            if(merging){
+                merge();
+            }else{
+                if(leftStart >= self.img.width - 1){
+                    leftStart = 0;
+                    currSize *= 2;
                 }
-                leftPtrs[k] = 0;
-                rightPtrs[k] = currSize;
+                mergePtrs = [];
+                auxArr = [];
+                leftLen = currSize;
+                for(var k = 0; k < self.img.height; k++){
+                    auxArr.push([]);
+                    mergePtrs.push(leftStart);
+                    for(var i = 0; i < currSize * 2 && mergePtrs[k] + i < self.img.width; i++){
+                        auxArr[k].push({
+                            val: self.arr[k][mergePtrs[k] + i],
+                            r: self.imgDataArr[(k * self.img.width + mergePtrs[k] + i) * 4],
+                            g: self.imgDataArr[(k * self.img.width + mergePtrs[k] + i) * 4 + 1],
+                            b: self.imgDataArr[(k * self.img.width + mergePtrs[k] + i) * 4 + 2],
+                            a: self.imgDataArr[(k * self.img.width + mergePtrs[k] + i) * 4 + 3]
+                        });
+                    }
+                    leftPtrs[k] = 0;
+                    rightPtrs[k] = currSize;
+                }
+                leftStart += 2 * currSize;
+                merging = true;
             }
-            leftStart += 2 * currSize;
-            merging = true;
         }
         self.setTimeout(step, self.delay);
     }

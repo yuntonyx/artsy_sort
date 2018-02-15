@@ -1,3 +1,5 @@
+<img src="https://thumbs.gfycat.com/EnchantingBeautifulChevrotain-size_restricted.gif" width=500 />
+
 # Artsy Sort
 Visualize sorting algorithms through images
 
